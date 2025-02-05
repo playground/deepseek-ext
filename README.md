@@ -13,9 +13,10 @@ To run and debug extension
 7) (Cmd + Option + I) to open brownser devtool as needed for UI debugging
 8) Ask DeepSeek anything...
 
-```markdown
-![Video](https://youtu.be/rWkV7WLIQN4)
-```
+
+https://github.com/user-attachments/assets/6632885c-1319-456c-a08c-0a1ed4e8d8cc
+
+
 
 ## Features
 
