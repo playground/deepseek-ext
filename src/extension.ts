@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import ollama from 'ollama';
+import path from 'path';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -20,7 +21,11 @@ export function activate(context: vscode.ExtensionContext) {
 		const panel = vscode.window.createWebviewPanel(
 			'deepChat', 'Deep Seek Chat', vscode.ViewColumn.One, {enableScripts: true}
 		);
-		panel.webview.html = getWebviewContent();
+		const imagePath = vscode.Uri.file(
+			path.join(context.extensionPath, 'media', 'deepseek.png')
+		);
+		const imageUri = panel.webview.asWebviewUri(imagePath);
+		panel.webview.html = getWebviewContent(imageUri);
 		panel.webview.onDidReceiveMessage(async(message: any) => {
 			if(message.command === 'chat') {
 				console.log('got', message.text);
@@ -53,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable);
 }
 
-function getWebviewContent() {
+function getWebviewContent(imageUri: any) {
 	return /*html*/`
 		<!DOCTYPE html>
 		<html lang="en">
@@ -63,22 +68,40 @@ function getWebviewContent() {
 					body { font-family: sans-serif; margin: 1rem; }
 					#prompt { width: 100%; box-sizing: border-box; }
 					#response {border: 1px solid #ccc; margin-top: 1rem; padding: 0.5rem; min-height: 1rem; }
+					.right-align-button {
+						display: flex;
+						align-items: flex-end;
+						justify-content: flex-end;
+						float: right;
+						padding: 10px;
+						gap: 5px;
+						border: 1px solid #ccc;
+						cursor: pointer;
+						background-color: #f0f0f0;
+					}
+					.response {
+						margin-top: 2.6rem !important;
+					}
 				</style>
 			</head>
 			<body>
 				<h2>DeepSeek VS Code Extension</h2>
-				<textarea id="prompt" rows="3" placeholder="Ask something"></textarea><br />
-				<button id="askBtn">Ask</button>
-				<div id="response"></div>
+				<textarea id="prompt" rows="3" placeholder="Ask me anything"></textarea><br />
+				<button id="askBtn" class="right-align-button">
+					<img src="${imageUri}" alt="" style="flex: 1;" width="15" height="15">
+					<span class="content-wrapper">Deep Ask</span>
+				</button>
+				<div id="response" class="response"></div>
 				
 				<script>
 					const vscode = acquireVsCodeApi();
 
 					window.addEventListener('DOMContentLoaded', () => {
             console.log("Webview fully loaded, listening for messages.");
-						const askBtn = document.getElementById('askBtn')
+						const askBtn = document.getElementById('askBtn');
+						const prompt = document.getElementById('prompt');
 						askBtn.addEventListener('click', () => {
-							const text = document.getElementById('prompt').value;
+							const text = prompt.value;
 							console.log('asking: ', text);
 							vscode.postMessage({ command: 'chat', text });
 						});
