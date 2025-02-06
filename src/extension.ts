@@ -79,6 +79,11 @@ function getWebviewContent(imageUri: any) {
 						cursor: pointer;
 						background-color: #f0f0f0;
 					}
+					.flex-container {
+						display: flex;
+						flex-direction: row;
+						float: right;
+					}
 					.response {
 						margin-top: 2.6rem !important;
 					}
@@ -87,10 +92,17 @@ function getWebviewContent(imageUri: any) {
 			<body>
 				<h2>DeepSeek VS Code Extension</h2>
 				<textarea id="prompt" rows="3" placeholder="Ask me anything"></textarea><br />
-				<button id="askBtn" class="right-align-button">
-					<img src="${imageUri}" alt="" style="flex: 1;" width="15" height="15">
-					<span class="content-wrapper">Deep Ask</span>
-				</button>
+				<div class="flex-container">
+					<select name="models" id="models">
+						<option value="deepseek-r1:8b" selected>deepseek-r1:8b</option>
+						<option value="deepseek-r1:latest">deepseek-r1:latest</option>
+						<option value="llama3.2">llama3.2</option>
+					</select>
+					<button id="askBtn" class="right-align-button">
+						<img src="${imageUri}" alt="" style="flex: 1;" width="15" height="15">
+						<span class="content-wrapper">Deep Ask</span>
+					</button>
+				</div>
 				<div id="response" class="response"></div>
 				
 				<script>
@@ -100,10 +112,12 @@ function getWebviewContent(imageUri: any) {
             console.log("Webview fully loaded, listening for messages.");
 						const askBtn = document.getElementById('askBtn');
 						const prompt = document.getElementById('prompt');
+						const model = document.getElementById('model');
 						askBtn.addEventListener('click', () => {
 							const text = prompt.value;
+							const selectedModel = model.options[model.selectedIndex].value;
 							console.log('asking: ', text);
-							vscode.postMessage({ command: 'chat', text });
+							vscode.postMessage({ command: 'chat', text: text, model: selectedModel });
 						});
 
 						window.addEventListener('message', event => {
